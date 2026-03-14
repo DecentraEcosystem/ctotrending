@@ -81,7 +81,10 @@ async def format_token_message(
 
         # ── Header: nome + ticker ──
         # Mostra ticker solo se diverso dal nome
-        message = f"🔥 <a href='https://pump.fun/{mint}'><b>{name}</b></a>  <b>New</b> <a href='https://t.me/pumpfunearlytrending'><b>Trending</b></a>\n\n"
+        import config as _cfg
+        _ch = _cfg.CHANNEL_USERNAME.lstrip('@') if _cfg.CHANNEL_USERNAME else ''
+        _ch_link = f"https://t.me/{_ch}" if _ch else '#'
+        message = f"🔥 <a href='https://pump.fun/{mint}'><b>{name}</b></a>  <b>New</b> <a href='{_ch_link}'><b>Trending</b></a>\n\n"
 
         # ── MC + age ──
         age_part = f"  ·  🕐 <b>{age_str}</b>" if age_str else ""
@@ -222,7 +225,10 @@ async def format_promo_message(
             else:
                 age_str = f"{age_sec / 3600:.1f}h ago"
 
-        message = f"🔥 <a href='https://pump.fun/{mint}'><b>{name}</b></a>  <b>New</b> <a href='https://t.me/pumpfunearlytrending'><b>Trending</b></a>\n\n"
+        import config as _cfg
+        _ch = _cfg.CHANNEL_USERNAME.lstrip('@') if _cfg.CHANNEL_USERNAME else ''
+        _ch_link = f"https://t.me/{_ch}" if _ch else '#'
+        message = f"🔥 <a href='https://pump.fun/{mint}'><b>{name}</b></a>  <b>New</b> <a href='{_ch_link}'><b>Trending</b></a>\n\n"
         message += "\n"
 
         age_part = f"  ·  🕐 <b>{age_str}</b>" if age_str else ""
@@ -516,7 +522,9 @@ def _format_recap_body(results_1h: list, results_24h: list, top_performers: list
     filled = round(win_rate / 10)
     bar = "█" * filled + "░" * (10 - filled)
 
-    channel_link = "https://t.me/pumpfunearlytrending"
+    import config as _cfg
+    _ch = _cfg.CHANNEL_USERNAME.lstrip('@') if _cfg.CHANNEL_USERNAME else ''
+    channel_link = f"https://t.me/{_ch}" if _ch else ''
 
     # ── Header ──
     msg  = f"📊 <b><a href='{channel_link}'>Pump.fun</a> Early Trending</b>\n\n"
@@ -547,14 +555,6 @@ def _format_recap_body(results_1h: list, results_24h: list, top_performers: list
     return msg
 
 
-def format_trending_recap(top10: list, results_1h: list = None, results_24h: list = None, top_performers: list = None) -> str:
-    """Recap orario per il canale."""
-    if not top10 and not results_24h:
-        return "📊 <b>24hr Pump.fun Early Trending Stats</b>\n\n<i>No data yet.</i>"
-    r24h = results_24h or [(t, t.initial_mc * m, m) for t, m in top10]
-    return _format_recap_body([], r24h, top_performers or [])
-
-
 def format_hourly_recap(
     results_1h: list,
     results_3h: list,
@@ -566,28 +566,3 @@ def format_hourly_recap(
 ) -> str:
     """Recap per il /trending in DM — stesso formato del canale."""
     return _format_recap_body(results_1h or [], results_24h or [], top_performers or [])
-
-
-def format_top10_post(results_24h: list, channel_link: str = "https://t.me/pumpfunearlytrending") -> str:
-    """Post Top 10 Early Trending — ordinato per multiplier, ogni 30 minuti."""
-    if not results_24h:
-        return ""
-
-    def _fmt_mc(mc: float) -> str:
-        if mc >= 1_000_000:
-            return f"${mc/1_000_000:.1f}M"
-        elif mc >= 1_000:
-            return f"${mc/1_000:.0f}k"
-        return f"${mc:.0f}"
-
-    sorted_results = sorted(results_24h, key=lambda x: x[2], reverse=True)[:10]
-    medals = ["🥇", "🥈", "🥉", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
-
-    msg = f"🏆 <b>Top 10 <a href='{channel_link}'>Trending</a></b>\n\n"
-    for i, (tracked, current_mc, mult) in enumerate(sorted_results):
-        medal = medals[i] if i < len(medals) else f"{i+1}."
-        label = f"{int(mult)}x"
-        token_link = f"https://pump.fun/{tracked.mint}"
-        msg += f"{medal} <a href='{token_link}'><b>{tracked.symbol}</b></a> — <b>{label}</b>\n"
-
-    return msg
