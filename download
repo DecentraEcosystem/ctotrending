@@ -1,0 +1,33 @@
+# Environment
+.env
+.env.local
+*.pyc
+__pycache__/
+.DS_Store
+
+# Logs
+*.log
+bot.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Virtual environment
+venv/
+env/
+
+# Database
+*.db
+*.sqlite
+
+# Cache
+.cache/
+*.cache
+
+# OS
+Thumbs.db
+.AppleDouble
+.LSOverride
